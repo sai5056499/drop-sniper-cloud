@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drop-Sniper Cloud — 24/7 Automated Ticket Sniper</title>
+  <style>
+    :root {
+      --bg: #070b19;
+      --card: #11182d;
+      --border: #1e294b;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding: 18px; }
+    .header {
+      max-width: 1280px; margin: 0 auto 20px; padding: 16px 20px;
+      background: linear-gradient(135deg, #11182d 0%, #0f172a 100%);
+      border: 1px solid var(--border); border-radius: 14px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .title-wrap h1 { margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+    .title-wrap p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+    .pill {
+      padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      background: rgba(56, 189, 248, 0.12); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 18px; max-width: 1280px; margin: 0 auto;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; display: flex; flex-direction: column;
+    }
+    .card h2 { margin: 0 0 12px; font-size: 17px; color: #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    label { display: block; font-size: 12px; font-weight: 600; margin: 10px 0 4px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; border-radius: 8px;
+      border: 1px solid #2a3966; background: #090e20; color: #fff; font-size: 14px;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    button {
+      margin-top: 14px; width: 100%; padding: 11px 16px; border-radius: 9px;
+      border: none; background: var(--accent); color: #020617; font-weight: 700;
+      font-size: 14px; cursor: pointer; transition: 0.15s ease;
+    }
+    button:hover { background: var(--accent-hover); }
+    .btn-secondary { background: #1e293b; color: #f8fafc; border: 1px solid #334155; }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.35); margin-top: 6px; padding: 7px; font-size: 12px; }
+    .status-box {
+      padding: 12px 14px; border-radius: 10px; background: #090e20;
+      border-left: 4px solid var(--accent); font-size: 13px; margin-bottom: 12px;
+    }
+    .prompt-banner {
+      border: 2px solid var(--warn); background: rgba(245, 158, 11, 0.1);
+      padding: 16px; border-radius: 12px; margin-bottom: 14px; display: none;
+    }
+    .job-card {
+      padding: 12px; border-radius: 10px; background: #090e20;
+      border: 1px solid #1e294b; margin-bottom: 10px; font-size: 13px;
+    }
+    .job-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .tag { padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: #1e293b; color: var(--accent); }
+    .tag.running { background: rgba(245, 158, 11, 0.2); color: var(--warn); }
+    .tag.upi { background: rgba(34, 197, 94, 0.2); color: var(--ok); }
+    .psgn-list { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+    .psgn-chip {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 10px; background: #090e20; border-radius: 8px; border: 1px solid #1e294b; font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title-wrap">
+      <h1>⚡ Drop-Sniper Cloud <span class="pill" id="storageBadge">Zero Local Disk • AES-256 Cloud</span></h1>
+      <p>24/7 Unattended Ticket Automation for IRCTC Tatkal, TTD ₹300 SED, IPL & BookMyShow — Runs even when your Mac is OFF</p>
+    </div>
+    <div class="pill" id="clockBadge">Syncing IST Clock...</div>
+  </div>
+
+  <div class="grid">
+    <!-- 1. Schedule New Drop -->
+    <div class="card">
+      <h2>1. Schedule Automated Ticket Drop</h2>
+      <label>Booking Platform</label>
+      <select id="siteSelect" onchange="renderSiteFields()">
+        <option value="irctc">🚆 IRCTC — Tatkal / General Train Booking</option>
+        <option value="ttd">🛕 TTD — Tirumala ₹300 Special Entry Darshan</option>
+        <option value="ipl">🏏 IPL — Stadium Match Ticket Queue Sniper</option>
+        <option value="bookmyshow">🎬 BookMyShow — Concert / Movie Drop Watcher</option>
+      </select>
+
+      <label>Scheduled Trigger Time (IST — Runs in Cloud when Laptop is OFF)</label>
+      <input type="datetime-local" id="runAtInput" />
+
+      <div id="dynamicParams"></div>
+      <button onclick="scheduleJob()">+ Schedule 24/7 Cloud Drop</button>
+    </div>
+
+    <!-- 2. Live Mobile Action Center (OTP / Captcha / UPI Bridge) -->
+    <div class="card">
+      <h2>2. Live Cloud Worker & Phone OTP/Captcha Bridge</h2>
+      <div class="status-box" id="liveStateBox">
+        <strong>State:</strong> <span id="liveStateText">IDLE — Waiting for scheduled drop</span>
+      </div>
+
+      <div id="promptBanner" class="prompt-banner">
+        <div style="font-weight:700;color:#fbbf24;margin-bottom:6px;">🔔 Instant Phone Action Required (OTP / Captcha)</div>
+        <div id="promptMsg" style="font-size:13px;margin-bottom:10px;"></div>
+        <img id="promptImg" style="width:100%;border-radius:8px;display:none;margin-bottom:10px;" alt="Captcha" />
+        <input id="promptValue" placeholder="Type 6-digit OTP or Captcha text here..." />
+        <button onclick="sendPromptReply()">Submit OTP / Captcha & Fire UPI Collect</button>
+      </div>
+
+      <img id="liveFrame" style="width:100%;border-radius:8px;display:none;border:1px solid #2a3966;" alt="Live Cloud Browser Stream" />
+
+      <h2 style="margin-top:18px;">Scheduled Cloud Queue</h2>
+      <div id="jobsList"><small style="color:var(--muted);">Loading scheduled jobs...</small></div>
+    </div>
+
+    <!-- 3. Encrypted Cloud Passenger & UPI Vault -->
+    <div class="card">
+      <h2>
+        <span>3. Encrypted Cloud Passenger Vault</span>
+        <button class="btn-secondary" style="width:auto;margin:0;padding:5px 10px;font-size:11px;" onclick="loadDefaultFamilyPreset()">Load Family Preset (4)</button>
+      </h2>
+      <div class="row-2">
+        <div>
+          <label>UPI ID (1-Tap Phone Collect)</label>
+          <input id="upiId" placeholder="sai5056499@okaxis" />
+        </div>
+        <div>
+          <label>Mobile Number (OTP)</label>
+          <input id="mobile" placeholder="9876543210" />
+        </div>
+      </div>
+      <div class="row-2">
+        <div>
+          <label>Email Address</label>
+          <input id="email" value="sai5056499@gmail.com" />
+        </div>
+        <div>
+          <label>IRCTC User ID</label>
+          <input id="irctcUsername" placeholder="IRCTC Username" />
+        </div>
+      </div>
+      <label>IRCTC Password (AES-256-GCM Encrypted)</label>
+      <input id="irctcPassword" type="password" placeholder="••••••••••••" />
+
+      <label>Saved Passengers (JSON — Auto-redacted in logs)</label>
+      <textarea id="passengersJson" rows="6"></textarea>
+      <div id="maskedPreview" class="psgn-list"></div>
+      <button onclick="saveVault()">🔒 Save to Encrypted Cloud Vault</button>
+    </div>
+  </div>
+
+  <script>
+    let activePromptId = null;
+
+    function loadDefaultFamilyPreset() {
+      const preset = [
+        { name: "C sai pavan", age: 22, gender: "Male", aadhaar: "712602070422" },
+        { name: "C sai Nithin", age: 21, gender: "Male", aadhaar: "867485339166" },
+        { name: "CVS Prakash Rao", age: 56, gender: "Male", aadhaar: "991867204299" },
+        { name: "K bharathi", age: 49, gender: "Female", aadhaar: "324978422197" }
+      ];
+      document.getElementById('passengersJson').value = JSON.stringify(preset, null, 2);
+    }
+
+    function renderSiteFields() {
+      const site = document.getElementById('siteSelect').value;
+      const box = document.getElementById('dynamicParams');
+      if (site === 'irctc') {
+        box.innerHTML = `
+          <div class="row-2">
+            <div><label>Train No.</label><input id="p_trainNo" value="12721" /></div>
+            <div><label>Journey Date</label><input id="p_date" value="25/11/2026" /></div>
+          </div>
+          <div class="row-2">
+            <div><label>From Station</label><input id="p_from" value="HYB" /></div>
+            <div><label>To Station</label><input id="p_to" value="BPL" /></div>
+          </div>
+          <div class="row-2">
+            <div>
+              <label>Class Tier</label>
+              <select id="p_class">
+                <option value="3A">3A — AC 3 Tier</option>
+                <option value="SL">SL — Sleeper</option>
+                <option value="2A">2A — AC 2 Tier</option>
+                <option value="3E">3E — AC 3 Economy</option>
+              </select>
+            </div>
+            <div>
+              <label>Quota</label>
+              <select id="p_quota">
+                <option value="TATKAL">TATKAL (TQ)</option>
+                <option value="GENERAL">GENERAL (GN)</option>
+                <option value="PREMIUM TATKAL">PREMIUM TATKAL (PT)</option>
+              </select>
+            </div>
+          </div>
+        `;
+      } else if (site === 'ttd') {
+        box.innerHTML = `
+          <div class="row-2">
+            <div><label>Target Month / Days</label><input id="p_dates" value="9, 10, 11" /></div>
+            <div><label>Preferred Slot</label><input id="p_slot" value="12:00" /></div>
+          </div>
+          <label>Darshan Type</label>
+          <input value="₹300 Special Entry Darshan (SED) — 4 Pilgrims" disabled />
+        `;
+      } else {
+        box.innerHTML = `
+          <label>Event / Match Booking URL</label>
+          <input id="p_url" placeholder="https://in.bookmyshow.com/sports/ipl-..." />
+          <div class="row-2">
+            <div><label>Preferred Stand / Showtime</label><input id="p_stand" placeholder="East Stand / 07:30 PM" /></div>
+            <div><label>Tickets Count</label><input id="p_qty" type="number" value="2" /></div>
+          </div>
+        `;
+      }
+    }
+
+    async function loadVault() {
+      const res = await fetch('/api/vault');
+      const v = await res.json();
+      if (v.email) document.getElementById('email').value = v.email;
+      if (v.mobile) document.getElementById('mobile').value = v.mobile;
+      if (v.upiId) document.getElementById('upiId').value = v.upiId;
+      if (v.irctcUsername) document.getElementById('irctcUsername').value = v.irctcUsername;
+      if (v.passengers && v.passengers.length > 0) {
+        document.getElementById('passengersJson').value = JSON.stringify(v.passengers, null, 2);
+        document.getElementById('maskedPreview').innerHTML = v.passengers.map(p => `
+          <div class="psgn-chip">
+            <span><strong>${p.name}</strong> (${p.age}, ${p.gender})</span>
+            <span style="color:var(--accent);">Aadhaar: ${p.aadhaarMasked}</span>
+          </div>
+        `).join('');
+      } else {
+        loadDefaultFamilyPreset();
+      }
+    }
+
+    async function saveVault() {
+      let passengers = [];
+      try {
+        passengers = JSON.parse(document.getElementById('passengersJson').value || '[]');
+      } catch {
+        alert('Invalid JSON in Passengers box');
+        return;
+      }
+      await fetch('/api/vault', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          upiId: document.getElementById('upiId').value,
+          mobile: document.getElementById('mobile').value,
+          email: document.getElementById('email').value,
+          irctcUsername: document.getElementById('irctcUsername').value,
+          irctcPassword: document.getElementById('irctcPassword').value,
+          passengers
+        })
+      });
+      await loadVault();
+      alert('Encrypted Cloud Vault updated (AES-256-GCM, zero local storage).');
+    }
+
+    async function scheduleJob() {
+      const site = document.getElementById('siteSelect').value;
+      const runAtVal = document.getElementById('runAtInput').value;
+      const runAtEpochMs = runAtVal ? new Date(runAtVal).getTime() : Date.now();
+      let params = {};
+      let title = '';
+      if (site === 'irctc') {
+        params = {
+          trainNo: document.getElementById('p_trainNo').value,
+          fromCode: document.getElementById('p_from').value,
+          toCode: document.getElementById('p_to').value,
+          journeyDate: document.getElementById('p_date').value,
+          classTier: document.getElementById('p_class').value,
+          quota: document.getElementById('p_quota').value,
+          dropTimeEpochMs: runAtEpochMs
+        };
+        title = `IRCTC #${params.trainNo} (${params.fromCode} → ${params.toCode}) ${params.classTier} ${params.quota}`;
+      } else if (site === 'ttd') {
+        params = {
+          preferredDates: document.getElementById('p_dates').value.split(',').map(s => s.trim()),
+          preferredSlots: [document.getElementById('p_slot').value]
+        };
+        title = `TTD ₹300 SED — Days [${params.preferredDates.join(', ')}] @ ${params.preferredSlots[0]}`;
+      } else {
+        params = {
+          eventUrl: document.getElementById('p_url').value,
+          preferredStand: document.getElementById('p_stand').value,
+          quantity: Number(document.getElementById('p_qty').value || 2)
+        };
+        title = `${site.toUpperCase()} — ${params.preferredStand || 'Best Available'} (${params.quantity}x)`;
+      }
+      await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ site, title, runAtEpochMs, params })
+      });
+      await pollState();
+    }
+
+    async function runNow(id) {
+      await fetch(`/api/jobs/${id}/run-now`, { method: 'POST' });
+      await pollState();
+    }
+
+    async function deleteJob(id) {
+      await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
+      await pollState();
+    }
+
+    async function sendPromptReply() {
+      const value = document.getElementById('promptValue').value.trim();
+      if (!value) return;
+      await fetch('/api/bridge/input', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ promptId: activePromptId, value })
+      });
+      document.getElementById('promptValue').value = '';
+      await pollState();
+    }
+
+    async function pollState() {
+      try {
+        const res = await fetch('/api/state');
+        const data = await res.json();
+        document.getElementById('clockBadge').innerText = `IST: ${data.istTime}`;
+
+        if (data.state) {
+          document.getElementById('liveStateText').innerText =
+            `[${data.state.site || '-'}] ${data.state.workerState} — ${data.state.detail || ''}`;
+
+          const banner = document.getElementById('promptBanner');
+          if (data.state.activePrompt) {
+            activePromptId = data.state.activePrompt.promptId;
+            banner.style.display = 'block';
+            document.getElementById('promptMsg').innerText = data.state.activePrompt.message;
+          } else {
+            banner.style.display = 'none';
+          }
+        }
+
+        const jobs = data.jobs || [];
+        document.getElementById('jobsList').innerHTML = jobs.map(j => {
+          const tagClass = j.status.includes('UPI') ? 'tag upi' : j.status.includes('RUNNING') ? 'tag running' : 'tag';
+          return `
+            <div class="job-card">
+              <div class="job-header">
+                <strong>${j.title || j.site.toUpperCase()}</strong>
+                <span class="${tagClass}">${j.status}</span>
+              </div>
+              <div style="color:var(--muted);font-size:12px;">
+                Strategy: <code>${j.timingStrategy}</code><br/>
+                Trigger: ${new Date(j.runAtEpochMs).toLocaleString()}
+              </div>
+              <div class="row-2">
+                <button style="margin-top:8px;padding:7px;font-size:12px;" onclick="runNow('${j.id}')">▶ Trigger Cloud Run Now</button>
+                <button class="btn-danger" onclick="deleteJob('${j.id}')">✕ Cancel</button>
+              </div>
+            </div>
+          `;
+        }).join('') || '<small style="color:var(--muted);">No cloud drops scheduled yet. Add one on the left!</small>';
+      } catch {
+        // ignore transient network error
+      }
+    }
+
+    renderSiteFields();
+    loadVault();
+    pollState();
+    setInterval(pollState, 2000);
+  </script>
+</body>
+</html>

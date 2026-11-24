@@ -1,0 +1,46 @@
+name: Drop-Sniper 24/7 Cloud Playwright Worker
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: 'Scheduled Job ID to execute'
+        required: true
+        type: string
+      site:
+        description: 'Target site adapter (irctc | ttd | ipl | bookmyshow)'
+        required: true
+        type: string
+  schedule:
+    # Pre-warm automatically before 10:00 AM IST (04:28 UTC) and 11:00 AM IST (05:28 UTC) every day
+    - cron: '28 4,5 * * *'
+
+jobs:
+  execute-drop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Drop-Sniper Cloud
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Dependencies & Chromium
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: Execute Cloud Playwright Adapter
+        env:
+          VERCEL_APP_URL: ${{ secrets.VERCEL_APP_URL }}
+          VAULT_SECRET_KEY: ${{ secrets.VAULT_SECRET_KEY }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          JOB_ID: ${{ inputs.job_id }}
+          SITE: ${{ inputs.site }}
+        run: node src/worker-cli.js
