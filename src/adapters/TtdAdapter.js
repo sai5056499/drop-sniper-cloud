@@ -4,17 +4,8 @@ const { BaseBookingAdapter } = require('./BaseBookingAdapter');
 
 class TtdAdapter extends BaseBookingAdapter {
   async execute(playwrightChromium) {
-    await this.updateState('PRE_WARMING', 'Launching Cloud Chromium for TTD ₹300 SED...');
-    this.browser = await playwrightChromium.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    this.context = await this.browser.newContext({
-      viewport: { width: 1366, height: 860 },
-      locale: 'en-IN',
-      timezoneId: 'Asia/Kolkata'
-    });
-    this.page = await this.context.newPage();
+    await this.updateState('PRE_WARMING', 'Launching Xvfb Headful Stealth Chrome for TTD ₹300 SED...');
+    await this.launchStealthBrowser(playwrightChromium);
 
     try {
       await this.page.goto('https://ttdevasthanams.ap.gov.in', {
@@ -30,7 +21,7 @@ class TtdAdapter extends BaseBookingAdapter {
         { activePrompt: null }
       );
     } finally {
-      await this.browser.close().catch(() => {});
+      if (this.browser) await this.browser.close().catch(() => {});
     }
   }
 }

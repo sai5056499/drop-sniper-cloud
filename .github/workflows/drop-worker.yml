@@ -1,4 +1,4 @@
-name: Drop-Sniper 24/7 Cloud Playwright Worker
+name: Drop-Sniper 24/7 Cloud Playwright Worker (Stealth + Xvfb)
 
 on:
   workflow_dispatch:
@@ -28,12 +28,13 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install Dependencies & Chromium
+      - name: Install Dependencies, Xvfb & Real Google Chrome
         run: |
-          npm install
-          npx playwright install --with-deps chromium
+          sudo apt-get update && sudo apt-get install -y xvfb
+          npm install playwright@1.50.0
+          npx playwright install --with-deps chrome chromium
 
-      - name: Execute Cloud Playwright Adapter
+      - name: Execute Headful Chrome inside Virtual Display (Xvfb)
         env:
           VERCEL_APP_URL: ${{ secrets.VERCEL_APP_URL }}
           VAULT_SECRET_KEY: ${{ secrets.VAULT_SECRET_KEY }}
@@ -41,6 +42,8 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          INDIAN_PROXY_URL: ${{ secrets.INDIAN_PROXY_URL }}
+          BROWSER_WS_ENDPOINT: ${{ secrets.BROWSER_WS_ENDPOINT }}
           JOB_ID: ${{ inputs.job_id }}
           SITE: ${{ inputs.site }}
-        run: node src/worker-cli.js
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1366x860x24" node src/worker-cli.js

@@ -4,17 +4,8 @@ const { BaseBookingAdapter } = require('./BaseBookingAdapter');
 
 class IrctcAdapter extends BaseBookingAdapter {
   async execute(playwrightChromium) {
-    await this.updateState('PRE_WARMING', 'Launching Cloud Chromium for IRCTC NGET...');
-    this.browser = await playwrightChromium.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled']
-    });
-    this.context = await this.browser.newContext({
-      viewport: { width: 1366, height: 860 },
-      locale: 'en-IN',
-      timezoneId: 'Asia/Kolkata'
-    });
-    this.page = await this.context.newPage();
+    await this.updateState('PRE_WARMING', 'Launching Xvfb Headful Stealth Chrome for IRCTC NGET...');
+    await this.launchStealthBrowser(playwrightChromium);
 
     try {
       await this.page.goto('https://www.irctc.co.in/nget/train-search', {
@@ -23,7 +14,6 @@ class IrctcAdapter extends BaseBookingAdapter {
       });
       await this.page.waitForTimeout(1500);
 
-      // Dismiss sidebar mask or popup dialogs
       await this.page.evaluate(() => {
         const mask = document.querySelector('p-sidebar .ui-sidebar-close, .ui-sidebar-mask');
         if (mask) mask.click();
@@ -45,7 +35,7 @@ class IrctcAdapter extends BaseBookingAdapter {
         { activePrompt: null }
       );
     } finally {
-      await this.browser.close().catch(() => {});
+      if (this.browser) await this.browser.close().catch(() => {});
     }
   }
 }

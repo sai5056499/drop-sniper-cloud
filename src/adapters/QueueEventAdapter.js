@@ -5,17 +5,8 @@ const { BaseBookingAdapter } = require('./BaseBookingAdapter');
 class QueueEventAdapter extends BaseBookingAdapter {
   async execute(playwrightChromium) {
     const label = String(this.job.site || 'event').toUpperCase();
-    await this.updateState('PRE_WARMING', `Launching Cloud Chromium for ${label} Queue Watcher...`);
-    this.browser = await playwrightChromium.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    this.context = await this.browser.newContext({
-      viewport: { width: 1366, height: 860 },
-      locale: 'en-IN',
-      timezoneId: 'Asia/Kolkata'
-    });
-    this.page = await this.context.newPage();
+    await this.updateState('PRE_WARMING', `Launching Xvfb Headful Stealth Chrome for ${label}...`);
+    await this.launchStealthBrowser(playwrightChromium);
 
     try {
       const url = (this.job.params && this.job.params.eventUrl) || 'https://in.bookmyshow.com';
@@ -29,7 +20,7 @@ class QueueEventAdapter extends BaseBookingAdapter {
         { activePrompt: null }
       );
     } finally {
-      await this.browser.close().catch(() => {});
+      if (this.browser) await this.browser.close().catch(() => {});
     }
   }
 }
